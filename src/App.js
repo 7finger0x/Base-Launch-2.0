@@ -9,7 +9,6 @@ const Cohorts = window.Cohorts;
 const Admin = window.Admin;
 const Profile = window.Profile;
 const TrendingDigest = window.TrendingDigest;
-
 function App() {
   const [apps, setApps] = useState([]);
   const [myStack, setMyStack] = useState([]);
@@ -163,11 +162,13 @@ function App() {
   };
 
   const shareApp = async (app, platform = 'farcaster') => {
-    const referralCode = generateReferralCode(user.id, app.id);
+    const referralCode = generateReferralCode(user?.id || '1', app.id);
     const shareText = `Just discovered ${app.name} on @base! ${app.description} Try it: [link]?ref=${referralCode} #BaseApps`;
     
     // Simulate social sharing
-    updateUserStats('referralCount', userStats.referralCount + 1);
+    if (user) {
+      updateUserStats('referralCount', userStats.referralCount + 1);
+    }
     
     // Track viral action
     setApps(apps.map(a => 
@@ -186,6 +187,8 @@ function App() {
   };
 
   const checkBadgeEligibility = () => {
+    if (!user) return;
+    
     const newBadges = [...user.badges];
     
     // Check various badge criteria
@@ -339,5 +342,4 @@ function App() {
 }
 
 export default App;
-window.App = App;
 window.App = App;
