@@ -1,37 +1,38 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Search, Heart, Rocket, Users, Shield, Menu } from 'lucide-react';
+import { Search, Heart, Rocket, Users, Shield, Menu, User, TrendingUp } from 'lucide-react';
 
-const Navigation = ({ isAdmin, setIsAdmin }) => {
+const Navigation = ({ isAdmin, setIsAdmin, user, userStats }) => {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
 
   const navItems = [
     { path: '/', icon: Search, label: 'Discovery' },
-    { path: '/my-stack', icon: Heart, label: 'My Stack' },
+    { path: '/my-stack', icon: Heart, label: 'My Stack', badge: user?.myStack?.length },
     { path: '/launches', icon: Rocket, label: 'Launches' },
     { path: '/cohorts', icon: Users, label: 'Cohorts' },
+    { path: '/trending', icon: TrendingUp, label: 'Trending' },
     ...(isAdmin ? [{ path: '/admin', icon: Shield, label: 'Admin' }] : [])
   ];
 
   return (
-    <nav className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-lg border-b border-purple-200 z-50">
+    <nav className="fixed top-0 left-0 right-0 bg-white/90 backdrop-blur-lg border-b border-purple-200 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <Link 
             to="/" 
             className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent hover:scale-105 transition-transform"
           >
-            Base Launch 2.0
+            Base Launch
           </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex space-x-1">
-            {navItems.map(({ path, icon: Icon, label }) => (
+            {navItems.map(({ path, icon: Icon, label, badge }) => (
               <Link
                 key={path}
                 to={path}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200 ${
+                className={`relative flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200 ${
                   location.pathname === path
                     ? 'bg-purple-100 text-purple-700 shadow-sm'
                     : 'text-gray-600 hover:bg-purple-50 hover:text-purple-600'
@@ -39,12 +40,49 @@ const Navigation = ({ isAdmin, setIsAdmin }) => {
               >
                 <Icon size={18} />
                 <span className="font-medium">{label}</span>
+                {badge && badge > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {badge > 99 ? '99+' : badge}
+                  </span>
+                )}
               </Link>
             ))}
           </div>
 
-          {/* Admin Toggle */}
+          {/* User Actions */}
           <div className="flex items-center space-x-4">
+            {user ? (
+              <Link 
+                to="/profile"
+                className="flex items-center space-x-2 bg-gradient-to-r from-purple-100 to-blue-100 px-3 py-2 rounded-lg hover:from-purple-200 hover:to-blue-200 transition-all"
+              >
+                <img 
+                  src={user.avatar} 
+                  alt="Profile" 
+                  className="w-6 h-6 rounded-full"
+                />
+                <span className="font-medium text-gray-700">{user.name}</span>
+                {user.badges?.length > 0 && (
+                  <div className="flex space-x-1">
+                    {user.badges.slice(0, 2).map(badge => (
+                      <span key={badge} className="text-xs">
+                        {badge === 'EARLY_ADOPTER' && '🌟'}
+                        {badge === 'APP_HUNTER' && '🏹'}
+                        {badge === 'VIRAL_CONTRIBUTOR' && '💥'}
+                        {badge === 'EARLY_BIRD' && '🐦'}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </Link>
+            ) : (
+              <button className="flex items-center space-x-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 py-2 rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all">
+                <User size={18} />
+                <span>Sign In</span>
+              </button>
+            )}
+
+            {/* Admin Toggle */}
             <button
               onClick={() => setIsAdmin(!isAdmin)}
               className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
@@ -70,12 +108,12 @@ const Navigation = ({ isAdmin, setIsAdmin }) => {
         {mobileMenuOpen && (
           <div className="md:hidden py-4 border-t border-purple-200">
             <div className="space-y-2">
-              {navItems.map(({ path, icon: Icon, label }) => (
+              {navItems.map(({ path, icon: Icon, label, badge }) => (
                 <Link
                   key={path}
                   to={path}
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all ${
+                  className={`relative flex items-center space-x-3 px-4 py-3 rounded-lg transition-all ${
                     location.pathname === path
                       ? 'bg-purple-100 text-purple-700'
                       : 'text-gray-600 hover:bg-purple-50'
@@ -83,6 +121,11 @@ const Navigation = ({ isAdmin, setIsAdmin }) => {
                 >
                   <Icon size={18} />
                   <span className="font-medium">{label}</span>
+                  {badge && badge > 0 && (
+                    <span className="bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center ml-auto">
+                      {badge > 99 ? '99+' : badge}
+                    </span>
+                  )}
                 </Link>
               ))}
             </div>
@@ -94,4 +137,5 @@ const Navigation = ({ isAdmin, setIsAdmin }) => {
 };
 
 export default Navigation;
+window.Navigation = Navigation;
 window.Navigation = Navigation;
